@@ -61,7 +61,7 @@ class TelegramComponent(
 
     private val chatRepository = ChatRepository()
 
-    val telegramCallbackHandler = TelegramCallbackHandler(chatRepository)
+    val telegramCallbackHandler = TelegramCallbackHandler(chatRepository, TelegramRepository(telegramService, botToken))
 
     val messageHandler = TelegramMessageHandler(
         telegramRepository = telegramRepository,
