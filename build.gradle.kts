@@ -8,7 +8,6 @@ plugins {
     kotlin("jvm") version "1.8.0"
     id("io.ktor.plugin") version "2.2.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "observer.maven"
