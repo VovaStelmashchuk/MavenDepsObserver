@@ -15,8 +15,8 @@ class TelegramButtonBuilder {
     fun buildButton(
         strategy: ChatRepository.ObservableStrategy,
         libraryId: LibraryId
-    ): List<TelegramInlineKeyboardButton> {
-        return when (strategy) {
+    ): List<List<TelegramInlineKeyboardButton>> {
+        val chagesButtons = when (strategy) {
             ChatRepository.ObservableStrategy.ALL -> {
                 listOf(
                     TelegramInlineKeyboardButton(
@@ -51,7 +51,9 @@ class TelegramButtonBuilder {
                     )
                 )
             }
-        }.plus(removeButton(libraryId))
+        }
+
+        return listOf(chagesButtons, listOf(removeButton(libraryId)))
     }
 
     private fun buildCallback(strategy: ChatRepository.ObservableStrategy, libraryId: LibraryId): String {

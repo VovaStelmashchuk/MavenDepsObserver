@@ -15,5 +15,13 @@ data class MavenMetaData(
     data class MavenVersion(
         @XmlChildrenName("version", "", "")
         val versions: List<Version>,
-    )
+    ) {
+        fun getMax(): Version {
+            return versions.max()
+        }
+
+        fun getMaxStable(): Version {
+            return versions.filter { it.isStable }.maxOrNull() ?: getMax()
+        }
+    }
 }

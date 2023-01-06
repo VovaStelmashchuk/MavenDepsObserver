@@ -5,6 +5,7 @@ import observer.maven.library.Libraries
 import observer.maven.telegram.ChatToLibraries
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.configureDatabase() {
     val databaseUrl = environment.config.property("ktor.database.url").getString()
@@ -17,5 +18,7 @@ fun Application.configureDatabase() {
         password = password,
     )
 
-    SchemaUtils.create(Libraries, ChatToLibraries)
+    transaction {
+        SchemaUtils.create(Libraries, ChatToLibraries)
+    }
 }

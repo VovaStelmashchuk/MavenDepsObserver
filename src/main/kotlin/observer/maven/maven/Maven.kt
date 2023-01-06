@@ -29,8 +29,8 @@ class Maven(
                 return AddLibraryResult.LibraryAlreadyExist(library)
             } else {
                 val libraryMetaData = mavenService.getLibrary(buildMavenArtifactPath(libraryId))
-                val lastStableVersion = libraryMetaData.versions.versions.filter { it.isStable }.max()
-                val lastVersion = libraryMetaData.versions.versions.max()
+                val lastVersion = libraryMetaData.versions.getMax()
+                val lastStableVersion = libraryMetaData.versions.getMaxStable()
 
                 val result = libraryDataBaseRepository.add(libraryId, lastStableVersion, lastVersion)
 

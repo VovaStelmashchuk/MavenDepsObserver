@@ -49,8 +49,8 @@ class MavenLibraryUpdatesMonitor(
 
     private suspend fun updateLibrary(library: Library): LibraryVersionChanges {
         val libraryMetaData = mavenService.getLibrary(buildMavenArtifactPath(library.libraryId))
-        val mavenLastVersion = libraryMetaData.versions.versions.max()
-        val mavenLastStableVersion = libraryMetaData.versions.versions.filter { it.isStable }.max()
+        val mavenLastVersion = libraryMetaData.versions.getMax()
+        val mavenLastStableVersion = libraryMetaData.versions.getMaxStable()
 
         return LibraryVersionChanges(
             libraryId = library.id,

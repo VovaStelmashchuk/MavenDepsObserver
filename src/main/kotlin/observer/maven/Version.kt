@@ -1,6 +1,7 @@
 package observer.maven
 
 import com.vdurmont.semver4j.Semver
+import com.vdurmont.semver4j.SemverException
 import kotlinx.serialization.Serializable
 
 @JvmInline
@@ -8,10 +9,18 @@ import kotlinx.serialization.Serializable
 value class Version(val value: String) : Comparable<Version> {
 
     val isStable: Boolean
-        get() = Semver(value).isStable
+        get() = try {
+            Semver(value).isStable
+        } catch (_: SemverException) {
+            false
+        }
 
     override operator fun compareTo(other: Version): Int {
-        return Semver(value).compareTo(Semver(other.value))
+        return try {
+            Semver(value).compareTo(Semver(other.value))
+        } catch (_: SemverException) {
+            return value.compareTo(other.value)
+        }
     }
 
     fun diff(other: Version): Semver.VersionDiff {

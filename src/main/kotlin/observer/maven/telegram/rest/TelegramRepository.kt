@@ -19,14 +19,14 @@ class TelegramRepository(
     suspend fun sendMessage(
         chatId: TelegramChatId,
         text: String,
-        buttons: List<TelegramInlineKeyboardButton>
+        buttons: List<List<TelegramInlineKeyboardButton>>
     ) {
         telegramService.sendMessage(
             botToken,
             TelegramSendMessageCommand(
                 chatId = chatId,
                 text = text,
-                replyMarkup = TelegramReplyMarkup(listOf(buttons)),
+                replyMarkup = TelegramReplyMarkup(buttons),
             )
         )
     }

@@ -12,6 +12,7 @@ plugins {
 
 group = "observer.maven"
 version = "0.0.1"
+
 application {
     mainClass.set("observer.maven.ApplicationKt")
 
@@ -19,8 +20,24 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+ktor {
+    docker {
+        externalRegistry.set(
+            io.ktor.plugin.features.DockerImageRegistry.dockerHub(
+                appName = provider { "maven-deps-observer" },
+                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
+                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
+            )
+        )
+    }
+}
+
 repositories {
     mavenCentral()
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 dependencies {
@@ -29,6 +46,7 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-xml:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
@@ -49,9 +67,6 @@ dependencies {
 
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
-
-    implementation("io.github.pdvrieze.xmlutil:core:0.84.3")
-    implementation("io.github.pdvrieze.xmlutil:serialization:0.84.3")
 
     implementation("com.vdurmont:semver4j:3.1.0")
 

@@ -37,7 +37,7 @@ class TelegramComponent(
         .build()
         .create(TelegramService::class.java)
 
-    val telegramRepository =
+    private val telegramRepository =
         TelegramRepository(telegramService, botToken)
 
     @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
@@ -55,7 +55,7 @@ class TelegramComponent(
         LibraryDataBaseRepository(),
     )
 
-    val libraryMediator = LibraryMediator(maven, telegramRepository, ChatRepository())
+    private val libraryMediator = LibraryMediator(maven, telegramRepository, ChatRepository(), TelegramButtonBuilder())
 
     private val mavenLibraryUpdatesMonitor = MavenLibraryUpdatesMonitor(LibraryDataBaseRepository(), mavenService)
 
