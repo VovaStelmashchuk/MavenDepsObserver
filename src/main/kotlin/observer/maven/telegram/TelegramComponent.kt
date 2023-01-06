@@ -23,6 +23,7 @@ import retrofit2.Retrofit
 
 class TelegramComponent(
     botToken: String,
+    syncInterval: Long,
 ) {
 
     private val okHttpClient = OkHttpClient.Builder()
@@ -57,7 +58,11 @@ class TelegramComponent(
 
     private val libraryMediator = LibraryMediator(maven, telegramRepository, ChatRepository(), TelegramButtonBuilder())
 
-    private val mavenLibraryUpdatesMonitor = MavenLibraryUpdatesMonitor(LibraryDataBaseRepository(), mavenService)
+    private val mavenLibraryUpdatesMonitor = MavenLibraryUpdatesMonitor(
+        LibraryDataBaseRepository(),
+        mavenService,
+        syncInterval,
+    )
 
     private val chatRepository = ChatRepository()
 

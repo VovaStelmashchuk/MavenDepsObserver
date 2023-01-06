@@ -51,9 +51,13 @@ class ChatRepository {
             Libraries.select { Libraries.libraryId eq libraryId.value }
                 .firstOrNull()
                 ?.let {
-                    ChatToLibraries.update({ (ChatToLibraries.chatId eq chatId.id) and (ChatToLibraries.libraryId eq it[Libraries.id]) }) {
-                        it[ChatToLibraries.observingStrategy] = observingStrategy
-                    }
+                    ChatToLibraries
+                        .update({
+                            (ChatToLibraries.chatId eq chatId.id) and
+                                    (ChatToLibraries.libraryId eq it[Libraries.id])
+                        }) {
+                            it[ChatToLibraries.observingStrategy] = observingStrategy
+                        }
                 }
         }
     }
