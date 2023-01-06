@@ -12,7 +12,9 @@ fun Application.configureTelegramInputController() {
 
     val botToken = environment.config.property("ktor.telegram.botToken").getString()
 
-    val telegramComponent = TelegramComponent(botToken)
+    val syncInterval = environment.config.property("ktor.setting.syncInterval").getString().toLong()
+
+    val telegramComponent = TelegramComponent(botToken, syncInterval)
 
     routing {
         post("/handleTelegramCommand") {

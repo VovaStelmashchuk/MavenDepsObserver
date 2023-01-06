@@ -9,7 +9,6 @@ import observer.maven.maven.LibraryId
 import observer.maven.maven.rest.MavenService
 import observer.maven.maven.rest.buildMavenArtifactPath
 import org.jetbrains.exposed.sql.Column
-import java.util.concurrent.TimeUnit
 
 interface LibraryUpdatesMonitor {
     fun flow(): Flow<MavenLibraryUpdatesMonitor.LibraryVersionChanges>
@@ -18,6 +17,7 @@ interface LibraryUpdatesMonitor {
 class MavenLibraryUpdatesMonitor(
     private val libraryDataBaseRepository: LibraryDataBaseRepository,
     private val mavenService: MavenService,
+    private val interval: Long,
 ) : LibraryUpdatesMonitor {
 
     private val flow: Flow<LibraryVersionChanges> = flow {
@@ -29,7 +29,7 @@ class MavenLibraryUpdatesMonitor(
                 }
             }
 
-            delay(TimeUnit.MINUTES.toMillis(1))
+            delay(interval)
         }
     }
 

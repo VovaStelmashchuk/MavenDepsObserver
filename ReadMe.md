@@ -21,7 +21,9 @@ The app require the postgres database. Run the postgres database and provide the
 
 ### Docker
 
-The repository has DockerFile, the file create fully ready docker image.
+```bash
+docker pull vovochkastelmashchuk/maven-deps-observer:latest
+```
 
 ### Run as java app
 
