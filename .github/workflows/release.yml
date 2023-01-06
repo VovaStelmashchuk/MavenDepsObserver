@@ -1,5 +1,9 @@
 name: Deploy on master
-on: master
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   gradle:
     runs-on: ubuntu-latest
