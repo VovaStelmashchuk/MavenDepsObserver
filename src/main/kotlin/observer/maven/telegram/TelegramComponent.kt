@@ -58,7 +58,11 @@ class TelegramComponent(
 
     private val libraryMediator = LibraryMediator(maven, telegramRepository, ChatRepository(), TelegramButtonBuilder())
 
-    private val mavenLibraryUpdatesMonitor = MavenLibraryUpdatesMonitor(LibraryDataBaseRepository(), mavenService, syncInterval)
+    private val mavenLibraryUpdatesMonitor = MavenLibraryUpdatesMonitor(
+        LibraryDataBaseRepository(),
+        mavenService,
+        syncInterval,
+    )
 
     private val chatRepository = ChatRepository()
 
