@@ -14,13 +14,25 @@ data class CallbackQuery(
     @SerialName("data")
     val data: String,
     @SerialName("message")
-    val message: TelegramReceivedMessage,
+    val message: TelegramCallbackMessage,
 )
+
+@Serializable
+data class TelegramCallbackMessage(
+    @SerialName("chat") val chat: TelegramChat,
+)
+
 
 @Serializable
 data class TelegramReceivedMessage(
     @SerialName("chat") val chat: TelegramChat,
+    @SerialName("from") val from: TelegramFrom,
     @SerialName("text") val text: String,
+)
+
+@Serializable
+data class TelegramFrom(
+    @SerialName("language_code") val language: String,
 )
 
 @Serializable

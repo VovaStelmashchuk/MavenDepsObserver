@@ -5,9 +5,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface TelegramService {
-    @POST("/{botToken}/sendMessage")
+    @POST("/sendMessage")
     suspend fun sendMessage(
-        @Path("botToken") botToken: String,
         @Body message: TelegramSendMessageCommand
     )
 }

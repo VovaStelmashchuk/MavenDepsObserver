@@ -1,14 +1,14 @@
 package observer.maven.maven
 
-import observer.maven.library.Library
-import observer.maven.library.LibraryDataBaseRepository
+import observer.maven.database.Libraries
+import observer.maven.database.Library
 import observer.maven.maven.rest.MavenService
 import observer.maven.maven.rest.buildMavenArtifactPath
+import org.jetbrains.exposed.sql.transactions.transaction
 import retrofit2.HttpException
 
 class Maven(
     private val mavenService: MavenService,
-    private val libraryDataBaseRepository: LibraryDataBaseRepository,
 ) {
 
     sealed class AddLibraryResult {
@@ -21,18 +21,29 @@ class Maven(
         object MavenCentralUnAvailable : AddLibraryResult()
     }
 
-    suspend fun add(libraryId: LibraryId): AddLibraryResult {
+    suspend fun add(libraryCoordinate: LibraryCoordinate): AddLibraryResult {
         return try {
-            val library = libraryDataBaseRepository.get(libraryId)
+            val library = transaction {
+                Library.find {
+                    Libraries.libraryCoordinate eq libraryCoordinate.value
+                }.firstOrNull()
+            }
 
             if (library != null) {
                 return AddLibraryResult.LibraryAlreadyExist(library)
             } else {
-                val libraryMetaData = mavenService.getLibrary(buildMavenArtifactPath(libraryId))
+                val libraryMetaData =
+                    mavenService.getLibrary(buildMavenArtifactPath(libraryCoordinate))
                 val lastVersion = libraryMetaData.versions.getMax()
                 val lastStableVersion = libraryMetaData.versions.getMaxStable()
 
-                val result = libraryDataBaseRepository.add(libraryId, lastStableVersion, lastVersion)
+                val result = transaction {
+                    Library.new {
+                        this.libraryCoordinate = libraryCoordinate.value
+                        this.lastStableVersion = lastStableVersion.value
+                        this.lastVersion = lastVersion.value
+                    }
+                }
 
                 AddLibraryResult.LibraryAdded(result)
             }

@@ -5,29 +5,34 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import observer.maven.Version
-import observer.maven.maven.LibraryId
+import observer.maven.database.Libraries
+import observer.maven.database.Library
 import observer.maven.maven.rest.MavenService
 import observer.maven.maven.rest.buildMavenArtifactPath
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 interface LibraryUpdatesMonitor {
     fun flow(): Flow<MavenLibraryUpdatesMonitor.LibraryVersionChanges>
 }
 
 class MavenLibraryUpdatesMonitor(
-    private val libraryDataBaseRepository: LibraryDataBaseRepository,
     private val mavenService: MavenService,
     private val interval: Long,
 ) : LibraryUpdatesMonitor {
 
     private val flow: Flow<LibraryVersionChanges> = flow {
         while (true) {
-            libraryDataBaseRepository.getAll().forEach {
-                val libraryVersionChanges = updateLibrary(it)
-                if (libraryVersionChanges.hasChanges()) {
-                    emit(libraryVersionChanges)
-                }
+            transaction {
+                Library.all().toList()
             }
+                .forEach {
+                    val libraryVersionChanges = updateLibrary(it)
+                    if (libraryVersionChanges.hasChanges()) {
+                        emit(libraryVersionChanges)
+                    }
+                }
 
             delay(interval)
         }
@@ -38,7 +43,7 @@ class MavenLibraryUpdatesMonitor(
     }
 
     data class LibraryVersionChanges(
-        val libraryId: Long,
+        val libraryId: Int,
         val stable: Semver.VersionDiff,
         val unstable: Semver.VersionDiff,
     ) {
@@ -48,20 +53,20 @@ class MavenLibraryUpdatesMonitor(
     }
 
     private suspend fun updateLibrary(library: Library): LibraryVersionChanges {
-        val libraryMetaData = mavenService.getLibrary(buildMavenArtifactPath(library.libraryId))
+        val libraryMetaData = mavenService.getLibrary(buildMavenArtifactPath(library.libraryCoordinate))
         val mavenLastVersion = libraryMetaData.versions.getMax()
         val mavenLastStableVersion = libraryMetaData.versions.getMaxStable()
 
         return LibraryVersionChanges(
-            libraryId = library.id,
+            libraryId = library.id.value,
             stable = updateVersionIfNeed(
-                library.libraryId,
+                library.libraryCoordinate,
                 library.lastStableVersion,
                 mavenLastStableVersion,
                 Libraries.lastStableVersion
             ),
             unstable = updateVersionIfNeed(
-                library.libraryId,
+                library.libraryCoordinate,
                 library.lastVersion,
                 mavenLastVersion,
                 Libraries.lastVersion
@@ -70,19 +75,16 @@ class MavenLibraryUpdatesMonitor(
     }
 
     private fun updateVersionIfNeed(
-        id: LibraryId,
-        localVersion: Version,
+        coordinate: String,
+        localVersion: String,
         mavenVersion: Version,
         column: Column<String>
     ): Semver.VersionDiff {
-        return if (localVersion != mavenVersion) {
-            libraryDataBaseRepository.updateLibraryVersion(
-                id,
-                mavenVersion,
-                column
-            )
-
-            mavenVersion.diff(localVersion)
+        return if (Version(localVersion) != mavenVersion) {
+            Libraries.update({ Libraries.libraryCoordinate eq coordinate }) {
+                it[column] = mavenVersion.toString()
+            }
+            mavenVersion.diff(Version(localVersion))
         } else {
             Semver.VersionDiff.NONE
         }

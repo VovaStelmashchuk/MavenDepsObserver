@@ -34,6 +34,7 @@ ktor {
 
 repositories {
     mavenCentral()
+    maven { this.url = uri("https://jitpack.io") }
 }
 
 tasks.withType<Test>().configureEach {
@@ -69,7 +70,9 @@ dependencies {
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
 
     implementation("com.vdurmont:semver4j:3.1.0")
+    implementation("com.github.aymanizz:ktor-i18n:2.0.0")
 
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
+    testImplementation("com.squareup.okhttp3:mockwebserver:$okhttpVersion")
 }

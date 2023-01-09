@@ -1,46 +1,32 @@
 package observer.maven.telegram
 
-import observer.maven.maven.LibraryId
+import observer.maven.database.TelegramChat
+import observer.maven.database.TelegramChats
+import observer.maven.maven.LibraryCoordinate
 import observer.maven.telegram.rest.CallbackQuery
-import observer.maven.telegram.rest.TelegramRepository
+import observer.maven.telegram.rest.TelegramMessageSender
+import org.jetbrains.exposed.sql.SizedCollection
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class TelegramCallbackHandler(
-    private val chatRepository: ChatRepository,
-    private val telegramRepository: TelegramRepository,
+    private val telegramMessageSender: TelegramMessageSender,
 ) {
 
     suspend fun handleCallback(callback: CallbackQuery) {
         when {
             callback.data.startsWith(TelegramBotConstants.REMOVE_PREFIX) -> {
-                val library = LibraryId(callback.data.removePrefix(TelegramBotConstants.REMOVE_PREFIX).trim())
-                chatRepository.removeChat(
-                    chatId = callback.message.chat.id,
-                    libraryId = library,
-                )
-                telegramRepository.sendMessage(
+                val library = LibraryCoordinate(callback.data.removePrefix(TelegramBotConstants.REMOVE_PREFIX).trim())
+                transaction {
+                    val chat = TelegramChat.find { TelegramChats.chatId eq callback.message.chat.id.id }.first()
+
+                    chat.libraries =
+                        SizedCollection(chat.libraries.filter { it.libraryCoordinate != library.value }.toSet())
+                }
+
+                telegramMessageSender.sendMessage(
                     chatId = callback.message.chat.id,
                     text = "$library removed from your library list",
                 )
-            }
-
-            callback.data.startsWith(TelegramBotConstants.CHANGE_OBSERVING_STRATEGY_PREFIX) -> {
-                val withoutCommandPrefix =
-                    callback.data.removePrefix(TelegramBotConstants.CHANGE_OBSERVING_STRATEGY_PREFIX).trim()
-                ChatRepository.ObservableStrategy.values().find { observableStrategy ->
-                    withoutCommandPrefix.startsWith(observableStrategy.name)
-                }?.let { observableStrategy ->
-                    val library = LibraryId(withoutCommandPrefix.removePrefix(observableStrategy.name).trim())
-                    chatRepository.changeObservability(
-                        chatId = callback.message.chat.id,
-                        libraryId = library,
-                        observingStrategy = observableStrategy,
-                    )
-
-                    telegramRepository.sendMessage(
-                        chatId = callback.message.chat.id,
-                        text = "Observing strategy for $library changed to ${observableStrategy.name}",
-                    )
-                }
             }
         }
     }
