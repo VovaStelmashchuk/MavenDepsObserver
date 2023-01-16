@@ -1,4 +1,4 @@
-package observer.maven.telegram
+package observer.maven.telegram.handlers
 
 import observer.maven.database.TelegramChat
 import observer.maven.database.TelegramChats

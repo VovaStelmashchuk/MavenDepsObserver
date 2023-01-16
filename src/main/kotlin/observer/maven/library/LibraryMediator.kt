@@ -19,8 +19,8 @@ class LibraryMediator(
         when (val res = maven.add(libraryId)) {
             is Maven.AddLibraryResult.LibraryAdded -> libraryAdded(chatId, res.library)
             is Maven.AddLibraryResult.LibraryAlreadyExist -> libraryAdded(chatId, res.library)
-            Maven.AddLibraryResult.InValidLibraryId -> sendToTelegram(chatId, "InValidLibraryId")
-            Maven.AddLibraryResult.LibraryNotFoundAdded -> sendToTelegram(chatId, "LibraryNotFoundAdded")
+            Maven.AddLibraryResult.InValidLibraryId -> sendToTelegram(chatId, "$libraryId is an invalid library id")
+            Maven.AddLibraryResult.LibraryNotFoundAdded -> sendToTelegram(chatId, "$libraryId not found")
             Maven.AddLibraryResult.MavenCentralUnAvailable -> sendToTelegram(chatId, "MavenCentralUnAvailable")
         }
     }

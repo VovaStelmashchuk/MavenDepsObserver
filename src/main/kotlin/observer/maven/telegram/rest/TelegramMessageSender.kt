@@ -6,7 +6,7 @@ import com.github.aymanizz.ktori18n.i18n
 import io.ktor.server.application.Application
 import observer.maven.database.Library
 import observer.maven.database.TelegramChat
-import observer.maven.telegram.TelegramBotConstants
+import observer.maven.telegram.handlers.TelegramBotConstants
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.Locale
 

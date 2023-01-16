@@ -1,4 +1,4 @@
-package observer.maven.telegram
+package observer.maven.telegram.handlers
 
 object TelegramBotConstants {
 
