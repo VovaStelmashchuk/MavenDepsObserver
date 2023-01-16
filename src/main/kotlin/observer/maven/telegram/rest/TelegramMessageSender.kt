@@ -38,7 +38,7 @@ class TelegramMessageSender(
                         listOf(
                             TelegramInlineKeyboardButton(
                                 "Stop observing",
-                                "${TelegramBotConstants.REMOVE_PREFIX}${library.libraryCoordinate}"
+                                "${TelegramBotConstants.REMOVE_PREFIX}${libraryId}"
                             ),
                         )
                     ),
@@ -67,7 +67,7 @@ class TelegramMessageSender(
                         listOf(
                             TelegramInlineKeyboardButton(
                                 "Stop observing",
-                                "${TelegramBotConstants.REMOVE_PREFIX}${library.libraryCoordinate}"
+                                "${TelegramBotConstants.REMOVE_PREFIX}${libraryId}"
                             ),
                         )
                     ),
