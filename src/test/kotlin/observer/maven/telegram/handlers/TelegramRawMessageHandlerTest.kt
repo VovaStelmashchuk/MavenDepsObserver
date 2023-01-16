@@ -102,4 +102,42 @@ class TelegramRawMessageHandlerTest {
             result
         )
     }
+
+    @Test
+    fun `should return library coordinate when message has implementation by grop and name`() {
+        val handler = TelegramRawMessageHandler()
+        val result = handler.handle(
+            """
+                implementation("org.jetbrains.exposed", "exposed-core", "0.38.2")
+                implementation("org.jetbrains.exposed", "exposed-dao", "0.38.2")
+            """.trimIndent()
+        )
+
+        assertEquals(
+            listOf(
+                LibraryCoordinate("org.jetbrains.exposed:exposed-core"),
+                LibraryCoordinate("org.jetbrains.exposed:exposed-dao"),
+            ),
+            result
+        )
+    }
+
+    @Test
+    fun `should return library coordinate when message has testImplementation`() {
+        val handler = TelegramRawMessageHandler()
+        val result = handler.handle(
+            """
+                testImplementation("io.mockk:mockk:1.13.2")
+                testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
+            """.trimIndent()
+        )
+
+        assertEquals(
+            listOf(
+                LibraryCoordinate("io.mockk:mockk"),
+                LibraryCoordinate("io.kotest:kotest-runner-junit5"),
+            ),
+            result
+        )
+    }
 }

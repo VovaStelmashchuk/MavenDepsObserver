@@ -1,6 +1,7 @@
 package observer.maven.telegram.handlers
 
 import observer.maven.maven.LibraryCoordinate
+import java.util.Locale
 
 class TelegramRawMessageHandler {
 
@@ -13,24 +14,42 @@ class TelegramRawMessageHandler {
         return rows
             .map { it.replace(" ", "") }
             .mapNotNull { row ->
-                val transformedRow = if (row.startsWith("implementation")) {
-                    row.removePrefix("implementation")
-                        .removePrefix("(\"")
-                        .removeSuffix("\")")
-                        .removePrefix("'")
-                        .removeSuffix("'")
+                val transformedRow = row
+                    .lowercase(Locale.US)
+                    .removePrefix("implementation")
+                    .removePrefix("api")
+                    .removePrefix("testimplementation")
+                    .removePrefix("(\"")
+                    .removeSuffix("\")")
+                    .removePrefix("'")
+                    .removeSuffix("'")
+
+                if (transformedRow.contains(":")) {
+                    val array = transformedRow.split(":")
+                    if (array.size >= 2) {
+                        LibraryCoordinate(buildString {
+                            append(array[0])
+                            append(":")
+                            append(array[1])
+                        })
+                    } else {
+                        null
+                    }
                 } else {
-                    row
-                }
-                val array = transformedRow.split(":")
-                if (array.size >= 2) {
-                    LibraryCoordinate(buildString {
-                        append(array[0])
-                        append(":")
-                        append(array[1])
-                    })
-                } else {
-                    null
+                    if (transformedRow.contains("\",\"")) {
+                        val array = transformedRow.split("\",\"")
+                        if (array.size >= 2) {
+                            LibraryCoordinate(buildString {
+                                append(array[0])
+                                append(":")
+                                append(array[1])
+                            })
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
                 }
             }
     }
