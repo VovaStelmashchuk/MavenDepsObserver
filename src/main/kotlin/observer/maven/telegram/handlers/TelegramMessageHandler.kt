@@ -1,15 +1,14 @@
 package observer.maven.telegram.handlers
 
 import com.github.aymanizz.ktori18n.R
-import com.github.aymanizz.ktori18n.i18n
 import com.github.aymanizz.ktori18n.t
 import io.ktor.server.application.ApplicationCall
 import observer.maven.database.TelegramChat
+import observer.maven.database.TelegramChats
 import observer.maven.library.LibraryMediator
 import observer.maven.telegram.rest.TelegramMessageSender
 import observer.maven.telegram.rest.TelegramReceivedMessage
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.Locale
 
 class TelegramMessageHandler(
     private val telegramMessageSender: TelegramMessageSender,
@@ -30,6 +29,19 @@ class TelegramMessageHandler(
                     chatId = message.chat.id,
                     text = call.t(R("hello")),
                 )
+            }
+
+            TelegramBotConstants.LIBRARIES -> {
+                val (chatId, libraries) = transaction {
+                    val chat = TelegramChat.find { TelegramChats.chatId eq message.chat.id.id }.first()
+                    return@transaction chat.id.value to chat.libraries.map { it.id.value }
+                }
+
+                libraries.forEach { library ->
+                    telegramMessageSender.sendLibraryInfo(
+                        chatId, library
+                    )
+                }
             }
 
             else -> {

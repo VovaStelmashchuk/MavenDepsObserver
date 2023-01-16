@@ -1,5 +1,6 @@
 package observer.maven.telegram.handlers
 
+import observer.maven.database.Library
 import observer.maven.database.TelegramChat
 import observer.maven.database.TelegramChats
 import observer.maven.telegram.rest.CallbackQuery
@@ -15,6 +16,9 @@ class TelegramCallbackHandler(
         when {
             callback.data.startsWith(TelegramBotConstants.REMOVE_PREFIX) -> {
                 val library = callback.data.removePrefix(TelegramBotConstants.REMOVE_PREFIX).trim().toInt()
+                val name = transaction {
+                    Library[library].libraryCoordinate
+                }
                 transaction {
                     val chat = TelegramChat.find { TelegramChats.chatId eq callback.message.chat.id.id }.first()
 
@@ -23,7 +27,7 @@ class TelegramCallbackHandler(
 
                 telegramMessageSender.sendMessage(
                     chatId = callback.message.chat.id,
-                    text = "$library removed from your library list",
+                    text = "$name removed from your library list",
                 )
             }
         }

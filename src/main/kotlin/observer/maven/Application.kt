@@ -75,6 +75,5 @@ fun main() {
             val telegramComponent = TelegramComponent(syncInterval, telegramService, mavenService, this)
             configureTelegramInputController(telegramComponent)
         }
-
     }).start(wait = true)
 }

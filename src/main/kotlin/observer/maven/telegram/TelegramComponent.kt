@@ -27,7 +27,7 @@ class TelegramComponent(
     application: Application,
 ) {
 
-    private val telegramMessageSender = TelegramMessageSender(telegramService, application, application.i18n)
+    private val telegramMessageSender = TelegramMessageSender(telegramService, application.i18n)
 
     private val maven = Maven(
         mavenService,

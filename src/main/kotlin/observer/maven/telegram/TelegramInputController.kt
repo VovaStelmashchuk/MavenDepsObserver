@@ -2,6 +2,7 @@ package observer.maven.telegram
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
+import io.ktor.server.application.log
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.post
@@ -14,6 +15,8 @@ fun Application.configureTelegramInputController(
     routing {
         post("/handleTelegramCommand") {
             val command = call.receive<TelegramCommand>()
+
+            this@configureTelegramInputController.log.info("telegram request $command")
 
             when {
                 command.message != null -> {
