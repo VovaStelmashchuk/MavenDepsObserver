@@ -12,9 +12,11 @@ import observer.maven.library.LibraryMediator
 import observer.maven.library.MavenLibraryUpdatesMonitor
 import observer.maven.maven.Maven
 import observer.maven.maven.rest.MavenService
+import observer.maven.telegram.handlers.HandledUpdates
 import observer.maven.telegram.handlers.TelegramCallbackHandler
 import observer.maven.telegram.handlers.TelegramMessageHandler
 import observer.maven.telegram.handlers.TelegramRawMessageHandler
+import observer.maven.telegram.handlers.UpdateVerifier
 import observer.maven.telegram.rest.TelegramMessageSender
 import observer.maven.telegram.rest.TelegramService
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -49,9 +51,11 @@ class TelegramComponent(
         telegramRawMessageHandler = TelegramRawMessageHandler(),
     )
 
+    val updateVerifier = UpdateVerifier()
+
     init {
         transaction {
-            SchemaUtils.create(Libraries, TelegramChats, ChatLibrary)
+            SchemaUtils.create(Libraries, TelegramChats, ChatLibrary, HandledUpdates)
         }
         TelegramNotifier(
             telegramMessageSender,

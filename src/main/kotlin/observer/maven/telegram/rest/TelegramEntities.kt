@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TelegramCommand(
+    @SerialName("update_id") val updateId: Long,
     @SerialName("message") val message: TelegramReceivedMessage? = null,
     @SerialName("callback_query") val callbackQuery: CallbackQuery? = null,
 )

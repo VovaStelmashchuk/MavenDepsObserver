@@ -1,5 +1,6 @@
 package observer.maven.telegram
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.log
@@ -28,7 +29,7 @@ fun Application.configureTelegramInputController(
                 }
             }
 
-            call.respond("Ok")
+            call.respond(HttpStatusCode.Accepted)
         }
     }
 }

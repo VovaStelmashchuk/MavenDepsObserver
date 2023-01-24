@@ -32,14 +32,13 @@ class TelegramMessageHandler(
             }
 
             TelegramBotConstants.LIBRARIES -> {
-                val (chatId, libraries) = transaction {
-                    val chat = TelegramChat.find { TelegramChats.chatId eq message.chat.id.id }.first()
-                    return@transaction chat.id.value to chat.libraries.map { it.id.value }
+                val chat = transaction {
+                    return@transaction TelegramChat.find { TelegramChats.chatId eq message.chat.id.id }.first()
                 }
 
-                libraries.forEach { library ->
+                chat.libraries.forEach { library ->
                     telegramMessageSender.sendLibraryInfo(
-                        chatId, library
+                        library.id.value, chat.id.value
                     )
                 }
             }

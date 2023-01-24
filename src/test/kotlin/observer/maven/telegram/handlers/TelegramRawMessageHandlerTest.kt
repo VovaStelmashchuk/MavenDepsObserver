@@ -15,6 +15,13 @@ class TelegramRawMessageHandlerTest {
     }
 
     @Test
+    fun `should return empty list when message numbers`() {
+        val handler = TelegramRawMessageHandler()
+        val result = handler.handle("12")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
     fun `should return empty list when message is blank`() {
         val handler = TelegramRawMessageHandler()
         val result = handler.handle(" ")

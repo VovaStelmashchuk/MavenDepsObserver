@@ -29,6 +29,7 @@ ktor {
                 password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
             )
         )
+        jreVersion.set(io.ktor.plugin.features.JreVersion.JRE_17)
     }
 }
 
