@@ -1,46 +1,42 @@
 package observer.maven.library
 
-import observer.maven.maven.LibraryId
+import observer.maven.database.Library
+import observer.maven.database.TelegramChat
+import observer.maven.database.TelegramChats
+import observer.maven.maven.LibraryCoordinate
 import observer.maven.maven.Maven
-import observer.maven.telegram.ChatRepository
-import observer.maven.telegram.TelegramButtonBuilder
 import observer.maven.telegram.rest.TelegramChatId
-import observer.maven.telegram.rest.TelegramRepository
+import observer.maven.telegram.rest.TelegramMessageSender
+import org.jetbrains.exposed.sql.SizedCollection
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class LibraryMediator(
     private val maven: Maven,
-    private val telegramRepository: TelegramRepository,
-    private val chatRepository: ChatRepository,
-    private val telegramButtonBuilder: TelegramButtonBuilder,
+    private val telegramMessageSender: TelegramMessageSender,
 ) {
 
-    suspend fun addLibrary(libraryId: LibraryId, chatId: TelegramChatId) {
+    suspend fun addLibrary(libraryId: LibraryCoordinate, chatId: TelegramChatId) {
         when (val res = maven.add(libraryId)) {
             is Maven.AddLibraryResult.LibraryAdded -> libraryAdded(chatId, res.library)
             is Maven.AddLibraryResult.LibraryAlreadyExist -> libraryAdded(chatId, res.library)
-            Maven.AddLibraryResult.InValidLibraryId -> sendToTelegram(chatId, "InValidLibraryId")
-            Maven.AddLibraryResult.LibraryNotFoundAdded -> sendToTelegram(chatId, "LibraryNotFoundAdded")
+            Maven.AddLibraryResult.InValidLibraryId -> sendToTelegram(chatId, "$libraryId is an invalid library id")
+            Maven.AddLibraryResult.LibraryNotFoundAdded -> sendToTelegram(chatId, "$libraryId not found")
             Maven.AddLibraryResult.MavenCentralUnAvailable -> sendToTelegram(chatId, "MavenCentralUnAvailable")
         }
     }
 
     private suspend fun libraryAdded(chatId: TelegramChatId, library: Library) {
-        chatRepository.attachLibrary(chatId, library.id, ChatRepository.ObservableStrategy.STABLE)
+        val chat = transaction {
+            val chat = TelegramChat.find { TelegramChats.chatId eq chatId.id }.first()
 
-        telegramRepository.sendMessage(
-            chatId = chatId,
-            text = "The library ${library.libraryId} was added the last version is ${library.lastVersion} " +
-                    "the last stable version is ${library.lastStableVersion}. " +
-                    "I will notify you when a new version is released.",
-            buttons = telegramButtonBuilder.buildButton(
-                ChatRepository.ObservableStrategy.STABLE,
-                library.libraryId,
-            )
-        )
+            chat.libraries = SizedCollection(chat.libraries + library)
+            chat
+        }
+        telegramMessageSender.sendLibraryAdded(chat.id.value, library.id.value)
     }
 
     private suspend fun sendToTelegram(chatId: TelegramChatId, text: String) {
-        telegramRepository.sendMessage(
+        telegramMessageSender.sendMessage(
             chatId = chatId,
             text = text
         )
